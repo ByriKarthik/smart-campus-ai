@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}Faculty Timetable{% endblock %}
+
+{% block content %}
+<style>
+    .timetable-wrap {
+        background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+        border-radius: 1rem;
+        box-shadow: 0 12px 26px rgba(15, 23, 42, 0.08);
+    }
+    .timetable-table {
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+    .timetable-table th,
+    .timetable-table td {
+        vertical-align: top;
+        min-width: 180px;
+        border: 1px solid #e5e7eb;
+        background: #fff;
+    }
+    .slot-col {
+        min-width: 140px;
+        background: #eff6ff !important;
+        font-weight: 600;
+    }
+    .class-card {
+        border-radius: 0.8rem;
+        padding: 0.75rem;
+        min-height: 98px;
+        background: #eef6ff;
+        border: 1px solid #d7e8ff;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .class-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 18px rgba(37, 99, 235, 0.14);
+    }
+    .class-title {
+        font-weight: 700;
+        margin-bottom: 0.35rem;
+        color: #0f172a;
+    }
+    .class-meta {
+        color: #475569;
+        font-size: 0.9rem;
+        line-height: 1.3;
+    }
+    .empty-cell {
+        min-height: 98px;
+        border-radius: 0.8rem;
+        background: #f8fafc;
+    }
+</style>
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+        <h1 class="h3 mb-1">Faculty Weekly Timetable</h1>
+        <p class="text-muted mb-0">Weekly class allocation (MON-FRI).</p>
+    </div>
+    <a href="{% url 'faculty_dashboard' %}" class="btn btn-outline-primary">Back to Dashboard</a>
+</div>
+
+<div class="timetable-wrap p-3 p-md-4">
+    <div class="table-responsive">
+        {% if slot_rows %}
+            <table class="table timetable-table align-middle mb-0">
+                <thead>
+                    <tr class="text-center">
+                        <th class="slot-col">Time Slot</th>
+                        {% for day in day_columns %}
+                            <th>{{ day }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in slot_rows %}
+                        <tr>
+                            <td class="slot-col">{{ row.label }}</td>
+                            {% for cell in row.ordered_cells %}
+                                <td>
+                                    {% if cell %}
+                                        <div class="class-card">
+                                            <div class="class-title">{{ cell.subject_name }}</div>
+                                            <div class="class-meta">Section: {{ cell.section_name }}</div>
+                                            <div class="class-meta">Room: {{ cell.room }}</div>
+                                        </div>
+                                    {% else %}
+                                        <div class="empty-cell"></div>
+                                    {% endif %}
+                                </td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="text-muted mb-0">No timetable entries found.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+

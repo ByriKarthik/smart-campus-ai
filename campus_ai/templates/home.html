@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}Smart Campus AI{% endblock %}
+
+{% block content %}
+<section class="card card-soft border-0 overflow-hidden mb-4">
+    <div class="row g-0 align-items-center">
+        <div class="col-12 col-lg-7">
+            <div class="p-4 p-md-5">
+                <span class="badge text-bg-primary mb-3">Smart Campus Platform</span>
+                <h1 class="display-5 fw-bold mb-3">Smart Campus AI</h1>
+                <p class="lead text-muted mb-4">AI-driven University Management System</p>
+                <div class="d-flex flex-wrap gap-2">
+                    <a href="/login/" class="btn btn-primary btn-lg">Login</a>
+                    <a href="#features" class="btn btn-outline-primary btn-lg">Learn More</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-lg-5">
+            <div class="h-100 p-4 p-md-5 bg-primary-subtle">
+                <h2 class="h5 mb-3">Why Campus AI</h2>
+                <p class="text-muted mb-0">
+                    Unified dashboards, automated attendance, and intelligent operations for modern campus administration.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="features" class="row g-4">
+    <div class="col-12 col-md-4">
+        <div class="card card-soft h-100">
+            <div class="card-body p-4">
+                <div class="mb-3"><i class="bi bi-camera-video-fill fs-3 text-primary"></i></div>
+                <h3 class="h5">AI Attendance</h3>
+                <p class="text-muted mb-0">Track student attendance with intelligent workflows and fast faculty validation.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-md-4">
+        <div class="card card-soft h-100">
+            <div class="card-body p-4">
+                <div class="mb-3"><i class="bi bi-bar-chart-fill fs-3 text-success"></i></div>
+                <h3 class="h5">Resource Analytics</h3>
+                <p class="text-muted mb-0">Monitor section utilization and faculty workload to optimize campus planning.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-md-4">
+        <div class="card card-soft h-100">
+            <div class="card-body p-4">
+                <div class="mb-3"><i class="bi bi-basket2-fill fs-3 text-warning"></i></div>
+                <h3 class="h5">Smart Canteen</h3>
+                <p class="text-muted mb-0">Place food orders with recommendation-backed stall selection and wait-time visibility.</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+

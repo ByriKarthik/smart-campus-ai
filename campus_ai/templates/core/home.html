@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Campus UMS{% endblock %}
+
+{% block content %}
+<div class="card card-soft border-0 overflow-hidden">
+    <div class="row g-0 align-items-center">
+        <div class="col-12 col-lg-7">
+            <div class="p-4 p-md-5">
+                <span class="badge text-bg-primary mb-3">Unified Management System</span>
+                <h1 class="display-5 fw-bold mb-3">Campus Operations, One Dashboard</h1>
+                <p class="lead text-muted mb-4">
+                    Manage attendance, academics, and canteen operations from a single portal designed for admins, faculty, and students.
+                </p>
+                <div class="d-flex flex-wrap gap-2">
+                    <a href="/login/" class="btn btn-primary btn-lg">Login</a>
+                    <a href="/attendance/" class="btn btn-outline-primary btn-lg">View Attendance</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-lg-5">
+            <div class="p-4 p-md-5 bg-primary text-white h-100">
+                <h2 class="h4 mb-3">Platform Highlights</h2>
+                <ul class="list-group list-group-flush rounded">
+                    <li class="list-group-item">Role-based dashboards</li>
+                    <li class="list-group-item">Attendance monitoring</li>
+                    <li class="list-group-item">Subject and faculty tracking</li>
+                    <li class="list-group-item">Canteen order insights</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

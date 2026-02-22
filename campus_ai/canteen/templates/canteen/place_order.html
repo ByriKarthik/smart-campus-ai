@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% block title %}Place Order{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+        <h1 class="h3 mb-1">Place Canteen Order</h1>
+        <p class="text-muted mb-0">Choose timeslot, pick a stall, and add menu items.</p>
+    </div>
+    <a href="{% url 'my_orders' %}" class="btn btn-outline-primary">My Orders</a>
+</div>
+
+<div class="card card-soft mb-4">
+    <div class="card-body p-4">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-12 col-md-6 col-lg-4">
+                <label for="timeslot" class="form-label">Select Time Slot</label>
+                <select name="timeslot" id="timeslot" class="form-select" required>
+                    <option value="">Choose...</option>
+                    {% for slot in timeslots %}
+                        <option value="{{ slot.id }}" {% if selected_timeslot and selected_timeslot.id == slot.id %}selected{% endif %}>
+                            {{ slot.break_type }} ({{ slot.start_time }} - {{ slot.end_time }})
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-primary">Get Recommendations</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% if selected_timeslot %}
+<form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="timeslot" value="{{ selected_timeslot.id }}">
+    {% if selected_stall %}
+        <input type="hidden" name="stall" value="{{ selected_stall.id }}">
+    {% endif %}
+
+    <div class="card card-soft mb-4">
+        <div class="card-body p-4">
+            <h2 class="h5 mb-3">Recommended Stalls</h2>
+            {% if recommendations %}
+                <div class="row g-3">
+                    {% for rec in recommendations %}
+                        <div class="col-12 col-lg-6">
+                            <div class="card h-100 border {% if selected_stall and selected_stall.id == rec.stall.id %}border-primary{% else %}border-light{% endif %}">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start gap-3">
+                                        <div>
+                                            <p class="fw-semibold mb-1">{{ rec.stall.name }}</p>
+                                            <div class="text-muted small">
+                                                Rank #{{ rec.rank }} | Score: {{ rec.score }} | Load: {{ rec.current_load }} | Wait: {{ rec.estimated_wait }} min
+                                            </div>
+                                        </div>
+                                        <a href="{% url 'place_order' %}?timeslot={{ selected_timeslot.id }}&stall={{ rec.stall.id }}" class="btn btn-sm {% if selected_stall and selected_stall.id == rec.stall.id %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                                            {% if selected_stall and selected_stall.id == rec.stall.id %}Selected{% else %}Select{% endif %}
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-muted mb-0">No recommendations available for this timeslot.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if selected_stall %}
+    <div class="row g-4 mb-4">
+        <div class="col-12 col-lg-8">
+            <div class="card card-soft h-100">
+                <div class="card-body p-4">
+                    <h2 class="h5 mb-3">Menu Items - {{ selected_stall.name }}</h2>
+                    {% if menu_rows %}
+                        <div class="table-responsive">
+                            <table class="table align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Item</th>
+                                        <th>Category</th>
+                                        <th>Price</th>
+                                        <th style="width: 150px;">Quantity</th>
+                                        <th>Subtotal</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for row in menu_rows %}
+                                    <tr>
+                                        <td>{{ row.item.name }}</td>
+                                        <td>{{ row.item.category }}</td>
+                                        <td>{{ row.item.price }}</td>
+                                        <td>
+                                            <input
+                                                type="number"
+                                                min="0"
+                                                class="form-control"
+                                                name="qty_{{ row.item.id }}"
+                                                value="{{ row.qty }}">
+                                        </td>
+                                        <td>{{ row.subtotal }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted mb-0">No available menu items for this stall.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-lg-4">
+            <div class="card card-soft mb-3">
+                <div class="card-body p-4">
+                    <h3 class="h6 mb-3">Order Summary</h3>
+                    <p class="mb-2"><strong>Time Slot:</strong><br>{{ selected_timeslot.break_type }} ({{ selected_timeslot.start_time }} - {{ selected_timeslot.end_time }})</p>
+                    <p class="mb-2"><strong>Stall:</strong><br>{{ selected_stall.name }}</p>
+                    <p class="mb-0"><strong>Current Total:</strong> {{ order_preview_total }}</p>
+                </div>
+            </div>
+            {% if selected_recommendation %}
+            <div class="card card-soft">
+                <div class="card-body p-4">
+                    <h3 class="h6 mb-3">Recommendation Insight</h3>
+                    <p class="mb-1"><strong>Rank:</strong> #{{ selected_recommendation.rank }}</p>
+                    <p class="mb-1"><strong>Current Load:</strong> {{ selected_recommendation.current_load }}</p>
+                    <p class="mb-0"><strong>Estimated Wait:</strong> {{ selected_recommendation.estimated_wait }} min</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="d-flex gap-2">
+        {% if selected_stall %}
+            <button type="submit" class="btn btn-success">Place Order</button>
+        {% endif %}
+        <a href="{% url 'place_order' %}" class="btn btn-outline-secondary">Reset</a>
+    </div>
+</form>
+{% endif %}
+{% endblock %}

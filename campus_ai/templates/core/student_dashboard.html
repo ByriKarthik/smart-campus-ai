@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+
+{% block title %}Student Dashboard{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+        <h1 class="h3 mb-1">Student Dashboard</h1>
+        <p class="text-muted mb-0">Welcome, {{ user_id }} ({{ role }})</p>
+    </div>
+    <a href="/logout/" class="btn btn-outline-danger">Logout</a>
+</div>
+
+<div class="card card-soft mb-4">
+    <div class="card-body p-4">
+        <h2 class="h5 mb-3">Attendance Overview</h2>
+        <div class="row g-3 mb-3">
+            <div class="col-12 col-md-3">
+                <div class="border rounded p-3 h-100">
+                    <p class="text-muted mb-1 small">Overall Attendance</p>
+                    <h3 class="h4 mb-0">{{ attendance_percentage }}%</h3>
+                </div>
+            </div>
+            <div class="col-12 col-md-3">
+                <div class="border rounded p-3 h-100">
+                    <p class="text-muted mb-1 small">Total Classes</p>
+                    <h3 class="h4 mb-0">{{ total_sessions }}</h3>
+                </div>
+            </div>
+            <div class="col-12 col-md-3">
+                <div class="border rounded p-3 h-100">
+                    <p class="text-muted mb-1 small">Total Present</p>
+                    <h3 class="h4 mb-0">{{ present_sessions }}</h3>
+                </div>
+            </div>
+            <div class="col-12 col-md-3">
+                <div class="border rounded p-3 h-100">
+                    <p class="text-muted mb-1 small">Minimum Required</p>
+                    <h3 class="h4 mb-0">{{ required_percentage }}%</h3>
+                </div>
+            </div>
+        </div>
+
+        {% if is_below_threshold %}
+            <span class="badge text-bg-danger mb-2">Below Required Attendance</span>
+            <p class="mb-0">
+                Planner Insight: You must attend next <strong>{{ needed_classes }}</strong> classes to reach {{ required_percentage }}%.
+            </p>
+        {% else %}
+            <span class="badge text-bg-success">Attendance on Track</span>
+        {% endif %}
+    </div>
+</div>
+
+<div class="card card-soft mb-4">
+    <div class="card-body p-4">
+        <h2 class="h5 mb-3">Enrolled Subjects</h2>
+        {% if enrolled_subjects %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Code</th>
+                            <th>Subject</th>
+                            <th>Faculty</th>
+                            <th>Semester</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for enrollment in enrolled_subjects %}
+                            <tr>
+                                <td>{{ enrollment.subject.subject_code }}</td>
+                                <td>{{ enrollment.subject.subject_name }}</td>
+                                <td>{% if enrollment.subject.faculty %}{{ enrollment.subject.faculty.user_id }}{% else %}-{% endif %}</td>
+                                <td>{{ enrollment.subject.semester }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p class="text-muted mb-0">No enrolled subjects found.</p>
+        {% endif %}
+    </div>
+</div>
+
+<div class="card card-soft mb-4">
+    <div class="card-body p-4">
+        <h2 class="h5 mb-3">Today's Classes</h2>
+        {% if today_classes %}
+            <div class="list-group list-group-flush">
+                {% for cls in today_classes %}
+                    <div class="list-group-item px-0">
+                        <div class="fw-semibold">{{ cls.start_time }} - {{ cls.end_time }}</div>
+                        <div>{{ cls.subject.subject_name }}</div>
+                        <div class="text-muted small">Faculty: {{ cls.faculty.user_id }} | Room: {{ cls.room }}</div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="text-muted mb-0">No classes today.</p>
+        {% endif %}
+    </div>
+</div>
+
+<div class="card card-soft mb-4">
+    <div class="card-body p-4">
+        <h2 class="h5 mb-3">Upcoming Remedial Sessions</h2>
+        {% if upcoming_remedials %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Subject</th>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Faculty</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for remedial in upcoming_remedials %}
+                            <tr>
+                                <td>{{ remedial.subject.subject_name }}</td>
+                                <td>{{ remedial.scheduled_date }}</td>
+                                <td>
+                                    {% if remedial.start_time and remedial.end_time %}
+                                        {{ remedial.start_time }} - {{ remedial.end_time }}
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
+                                <td>{{ remedial.created_by.user_id }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p class="text-muted mb-0">No remedial sessions scheduled.</p>
+        {% endif %}
+    </div>
+</div>
+
+<div class="card card-soft mb-4">
+    <div class="card-body p-4">
+        <h2 class="h5 mb-3">My Food Orders Summary</h2>
+        <div class="row g-3">
+            <div class="col-12 col-md-6">
+                <div class="border rounded p-3 h-100">
+                    <p class="text-muted mb-1 small">Pending Orders</p>
+                    <h3 class="h4 mb-0">{{ pending_orders_count }}</h3>
+                </div>
+            </div>
+            <div class="col-12 col-md-6">
+                <div class="border rounded p-3 h-100">
+                    <p class="text-muted mb-1 small">Last Order Status</p>
+                    <h3 class="h4 mb-0">{{ last_order_status }}</h3>
+                </div>
+            </div>
+        </div>
+        <a href="{% url 'my_orders' %}" class="btn btn-outline-primary mt-3">View My Orders</a>
+    </div>
+</div>
+
+<div class="card card-soft">
+    <div class="card-body p-4">
+        <h2 class="h5 mb-3">Quick Actions</h2>
+        <div class="d-flex gap-2 flex-wrap">
+            <a href="{% url 'student_timetable' %}" class="btn btn-outline-primary">View Timetable</a>
+            <a href="{% url 'place_order' %}" class="btn btn-success">Order Food</a>
+            <a href="{% url 'my_orders' %}" class="btn btn-outline-success">View My Orders</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

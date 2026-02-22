@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block title %}Faculty Dashboard{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+        <h1 class="h3 mb-1">Faculty Dashboard</h1>
+        <p class="text-muted mb-0">Welcome, {{ user_id }} ({{ role }})</p>
+    </div>
+    <a href="/logout/" class="btn btn-outline-danger">Logout</a>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-12 col-md-6 col-xl-4">
+        <div class="card card-soft h-100 border-start border-4 border-primary">
+            <div class="card-body">
+                <p class="text-uppercase text-muted mb-2 small fw-semibold">My Subjects</p>
+                <h2 class="display-6 fw-bold mb-0">{{ my_subjects_count }}</h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-md-6 col-xl-4">
+        <div class="card card-soft h-100 border-start border-4 border-success">
+            <div class="card-body">
+                <p class="text-uppercase text-muted mb-2 small fw-semibold">Total Sessions Conducted</p>
+                <h2 class="display-6 fw-bold mb-0">{{ sessions_conducted_count }}</h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-md-6 col-xl-4">
+        <div class="card card-soft h-100 border-start border-4 border-warning">
+            <div class="card-body">
+                <p class="text-uppercase text-muted mb-2 small fw-semibold">Sessions Today</p>
+                <h2 class="display-6 fw-bold mb-0">{{ sessions_today_count }}</h2>
+                <p class="text-muted small mb-0 mt-2">{{ today_date }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card card-soft mb-4">
+    <div class="card-body p-4">
+        <h2 class="h5 mb-3">Quick Actions</h2>
+        <div class="d-flex flex-wrap gap-2">
+            <a href="{% url 'faculty_timetable' %}" class="btn btn-outline-primary">View Timetable</a>
+            <a href="{% url 'mark_attendance' %}" class="btn btn-primary">Mark Attendance</a>
+            <a href="{% url 'schedule_remedial' %}" class="btn btn-outline-secondary">Schedule Remedial</a>
+            <a href="{% url 'place_order' %}" class="btn btn-outline-success">Order Food</a>
+        </div>
+    </div>
+</div>
+
+<div class="card card-soft mb-4">
+    <div class="card-body p-4">
+        <h2 class="h5 mb-3">Today's Teaching Schedule</h2>
+        {% if today_classes %}
+            <div class="list-group list-group-flush">
+                {% for cls in today_classes %}
+                    <div class="list-group-item px-0">
+                        <div class="fw-semibold">{{ cls.start_time }} - {{ cls.end_time }}</div>
+                        <div>{{ cls.subject.subject_name }}</div>
+                        <div class="text-muted small">Section: {{ cls.section.name }} | Room: {{ cls.room }}</div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="text-muted mb-0">No classes scheduled today.</p>
+        {% endif %}
+    </div>
+</div>
+
+<div class="card card-soft">
+    <div class="card-body p-4">
+        <h2 class="h5 mb-3">Assigned Subjects</h2>
+        {% if assigned_subjects %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Code</th>
+                            <th>Name</th>
+                            <th>Course</th>
+                            <th>Department</th>
+                            <th>Semester</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for subject in assigned_subjects %}
+                            <tr>
+                                <td>{{ subject.subject_code }}</td>
+                                <td>{{ subject.subject_name }}</td>
+                                <td>{{ subject.course.course_name }}</td>
+                                <td>{{ subject.department.name }}</td>
+                                <td>{{ subject.semester }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p class="text-muted mb-0">No subjects are assigned to you yet.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

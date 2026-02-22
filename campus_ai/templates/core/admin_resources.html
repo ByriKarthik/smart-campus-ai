@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}Resource Analytics{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+        <h1 class="h3 mb-1">Resource & Parameter Estimation</h1>
+        <p class="text-muted mb-0">Section utilization and faculty workload overview.</p>
+    </div>
+    <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-primary">Back to Admin Dashboard</a>
+</div>
+
+<div class="card card-soft mb-4">
+    <div class="card-body p-4">
+        <h2 class="h5 mb-3">Section Capacity Utilization</h2>
+        {% if section_rows %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Section</th>
+                            <th>Course</th>
+                            <th>Year</th>
+                            <th>Capacity</th>
+                            <th>Enrolled</th>
+                            <th>Utilization %</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in section_rows %}
+                            <tr>
+                                <td>{{ row.section.name }}</td>
+                                <td>{{ row.section.course.course_name }}</td>
+                                <td>{{ row.section.year }}</td>
+                                <td>{{ row.capacity }}</td>
+                                <td>{{ row.enrolled_students }}</td>
+                                <td>{{ row.utilization }}%</td>
+                                <td>
+                                    <span class="badge {% if row.status == 'High' %}text-bg-danger{% elif row.status == 'Normal' %}text-bg-success{% else %}text-bg-warning{% endif %}">
+                                        {{ row.status }}
+                                    </span>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p class="text-muted mb-0">No sections found.</p>
+        {% endif %}
+    </div>
+</div>
+
+<div class="card card-soft">
+    <div class="card-body p-4">
+        <h2 class="h5 mb-3">Faculty Workload</h2>
+        {% if faculty_rows %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Faculty</th>
+                            <th>Subjects Assigned</th>
+                            <th>Total Students Enrolled</th>
+                            <th>Attendance Sessions Conducted</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in faculty_rows %}
+                            <tr>
+                                <td>{{ row.faculty.user_id }}</td>
+                                <td>{{ row.subjects_assigned_count }}</td>
+                                <td>{{ row.students_enrolled_count }}</td>
+                                <td>{{ row.attendance_sessions_count }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p class="text-muted mb-0">No faculty found.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+

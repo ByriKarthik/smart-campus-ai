@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}My Orders{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+        <h1 class="h3 mb-1">My Orders</h1>
+        <p class="text-muted mb-0">Track your canteen orders and status.</p>
+    </div>
+    <a href="{% url 'place_order' %}" class="btn btn-primary">Place New Order</a>
+</div>
+
+<div class="card card-soft">
+    <div class="card-body p-4">
+        {% if orders %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Stall</th>
+                            <th>Time Slot</th>
+                            <th>Status</th>
+                            <th>Total Price</th>
+                            <th>Estimated Wait</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders %}
+                            <tr>
+                                <td>#{{ order.id }}</td>
+                                <td>{{ order.stall.name }}</td>
+                                <td>{{ order.timeslot.break_type }} ({{ order.timeslot.start_time }} - {{ order.timeslot.end_time }})</td>
+                                <td>
+                                    <span class="badge {% if order.status == 'PENDING' %}text-bg-warning{% elif order.status == 'PREPARING' %}text-bg-primary{% elif order.status == 'READY' %}text-bg-success{% elif order.status == 'COMPLETED' %}text-bg-secondary{% else %}text-bg-danger{% endif %}">
+                                        {{ order.status }}
+                                    </span>
+                                </td>
+                                <td>{{ order.total_price }}</td>
+                                <td>
+                                    {% if order.estimated_wait_time is not None %}
+                                        {{ order.estimated_wait_time|floatformat:2 }} min
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p class="text-muted mb-0">No orders yet. Place your first order.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

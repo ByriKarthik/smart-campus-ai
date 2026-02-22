@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+        <h1 class="h3 mb-1">Admin Dashboard</h1>
+        <p class="text-muted mb-0">Welcome, {{ user_id }} ({{ role }})</p>
+    </div>
+    <a href="/logout/" class="btn btn-outline-danger">Logout</a>
+</div>
+
+<div class="row g-4">
+    <div class="col-12 col-md-6 col-xl-4">
+        <div class="card card-soft h-100 border-start border-4 border-primary">
+            <div class="card-body">
+                <p class="text-uppercase text-muted mb-2 small fw-semibold">Total Students</p>
+                <h2 class="display-6 fw-bold mb-0">{{ total_students }}</h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-md-6 col-xl-4">
+        <div class="card card-soft h-100 border-start border-4 border-success">
+            <div class="card-body">
+                <p class="text-uppercase text-muted mb-2 small fw-semibold">Total Faculty</p>
+                <h2 class="display-6 fw-bold mb-0">{{ total_faculty }}</h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-md-6 col-xl-4">
+        <div class="card card-soft h-100 border-start border-4 border-info">
+            <div class="card-body">
+                <p class="text-uppercase text-muted mb-2 small fw-semibold">Total Subjects</p>
+                <h2 class="display-6 fw-bold mb-0">{{ total_subjects }}</h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-md-6 col-xl-6">
+        <div class="card card-soft h-100 border-start border-4 border-warning">
+            <div class="card-body">
+                <p class="text-uppercase text-muted mb-2 small fw-semibold">Attendance Sessions</p>
+                <h2 class="display-6 fw-bold mb-0">{{ total_attendance_sessions }}</h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-md-6 col-xl-6">
+        <div class="card card-soft h-100 border-start border-4 border-danger">
+            <div class="card-body">
+                <p class="text-uppercase text-muted mb-2 small fw-semibold">Food Orders</p>
+                <h2 class="display-6 fw-bold mb-0">{{ total_food_orders }}</h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mt-1">
+    <div class="col-12 col-lg-6">
+        <div class="card card-soft h-100">
+            <div class="card-body p-4">
+                <h2 class="h5 mb-3">Attendance Monitoring</h2>
+                <a href="{% url 'admin_attendance_monitoring' %}?mode=students" class="d-flex justify-content-between align-items-center border rounded p-3 mb-3 text-decoration-none text-body">
+                    <div>
+                        <p class="mb-1 fw-semibold">Low Attendance Alerts</p>
+                        <p class="text-muted mb-0 small">Students below 75% attendance</p>
+                    </div>
+                    <span class="badge text-bg-danger fs-6">{{ low_attendance_students }}</span>
+                </a>
+                <a href="{% url 'admin_attendance_monitoring' %}?mode=faculty" class="d-flex justify-content-between align-items-center border rounded p-3 text-decoration-none text-body">
+                    <div>
+                        <p class="mb-1 fw-semibold">Inactive Faculty (Today)</p>
+                        <p class="text-muted mb-0 small">Faculty who have not marked attendance on {{ today_date }}</p>
+                    </div>
+                    <span class="badge text-bg-warning fs-6">{{ inactive_faculty_today }}</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-lg-6">
+        <div class="card card-soft h-100">
+            <div class="card-body p-4">
+                <h2 class="h5 mb-3">Operations Monitoring</h2>
+                <a href="{% url 'admin_operations_monitoring' %}?mode=sections" class="d-flex justify-content-between align-items-center border rounded p-3 mb-3 text-decoration-none text-body">
+                    <div>
+                        <p class="mb-1 fw-semibold">Overloaded Sections</p>
+                        <p class="text-muted mb-0 small">Sections above 90% occupancy</p>
+                    </div>
+                    <span class="badge text-bg-primary fs-6">{{ overloaded_sections }}</span>
+                </a>
+                <a href="{% url 'admin_operations_monitoring' %}?mode=canteen" class="border rounded p-3 d-block text-decoration-none text-body">
+                    <p class="mb-1 fw-semibold">Busiest Canteen Stall</p>
+                    <p class="text-muted mb-2 small">Active orders (PENDING + PREPARING)</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="fw-semibold">{{ busiest_stall_name }}</span>
+                        <span class="badge text-bg-success fs-6">{{ busiest_stall_load }}</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card card-soft mt-4">
+    <div class="card-body p-4">
+        <h2 class="h5 mb-3">Quick Actions</h2>
+        <div class="d-flex flex-wrap gap-2">
+            <a href="/admin/" class="btn btn-primary">Admin Panel</a>
+            <a href="{% url 'admin_resources' %}" class="btn btn-outline-dark">Resource Analytics</a>
+            <a href="/canteen/test/" class="btn btn-outline-success">Canteen Page</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
