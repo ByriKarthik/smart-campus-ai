@@ -201,16 +201,24 @@ function autoDetectAttendance() {
     })
     .then(res => res.json())
     .then(data => {
-        document.querySelectorAll(
-            'input[type="checkbox"]'
-        ).forEach(cb => cb.checked = false);
+        const switches = Array.from(
+            document.querySelectorAll('input.form-check-input[type="checkbox"]')
+        );
+        const switchMap = {};
+        switches.forEach(sw => {
+            switchMap[sw.name.toUpperCase()] = sw;
+            sw.checked = false;
+            sw.dispatchEvent(new Event('change', { bubbles: true }));
+        });
 
         if (data.present_students && data.present_students.length > 0) {
             data.present_students.forEach(studentId => {
-                const checkbox = document.querySelector(
-                    `input[name="${studentId}"]`
-                );
-                if (checkbox) checkbox.checked = true;
+                const checkbox = switchMap[String(studentId).toUpperCase()];
+                if (checkbox) {
+                    checkbox.checked = true;
+                    checkbox.dispatchEvent(new Event('change', { bubbles: true }));
+                    checkbox.setAttribute('checked', 'checked');
+                }
             });
 
             status.className = "badge bg-success";

@@ -29,23 +29,28 @@ WEEKDAY_CODE_MAP = {
 
 
 def login_view(request):
+
     if request.session.get("user_id") and request.session.get("role") in ROLE_TO_DASHBOARD:
         return redirect(ROLE_TO_DASHBOARD[request.session["role"]])
 
     if request.method == "POST":
+
         user_id = request.POST.get("user_id", "").strip()
         password = request.POST.get("password", "")
 
         user = User.objects.filter(
             user_id=user_id,
-            password=password,
             is_active=True,
         ).first()
 
-        if user:
+        if user and user.check_password(password):
+
             request.session["user_id"] = user.user_id
             request.session["role"] = user.role
-            return redirect(ROLE_TO_DASHBOARD.get(user.role, "/login/"))
+
+            return redirect(
+                ROLE_TO_DASHBOARD.get(user.role, "/login/")
+            )
 
         messages.error(request, "Invalid user ID or password.")
 
@@ -601,10 +606,12 @@ def faculty_timetable_view(request):
         role="FACULTY",
         is_active=True,
     ).first()
+
     if not faculty_user:
         return redirect("login")
 
     day_columns = ["MON", "TUE", "WED", "THU", "FRI"]
+
     time_slots = [
         ("09:00", "10:00"),
         ("10:00", "11:00"),
@@ -623,33 +630,45 @@ def faculty_timetable_view(request):
         }
         for start_str, end_str in time_slots
     ]
-    slot_index = {(row["start_str"], row["end_str"]): row for row in slot_rows}
 
     schedules = (
         ClassSchedule.objects.filter(
             faculty=faculty_user,
             day_of_week__in=day_columns,
         )
-        .select_related("subject", "section")
+        .select_related("subject", "section", "section__course")
         .order_by("day_of_week", "start_time")
     )
 
     for schedule in schedules:
-        key = (
-            schedule.start_time.strftime("%H:%M"),
-            schedule.end_time.strftime("%H:%M"),
-        )
-        row = slot_index.get(key)
-        if not row:
-            continue
-        row["cells"][schedule.day_of_week] = {
-            "subject_name": schedule.subject.subject_name,
-            "section_name": schedule.section.name,
-            "room": schedule.room,
-        }
+
+        start_str = schedule.start_time.strftime("%H:%M")
+        end_str = schedule.end_time.strftime("%H:%M")
+
+        for row in slot_rows:
+
+            if (
+                row["start_str"] == start_str
+                and row["end_str"] == end_str
+            ):
+
+                row["cells"][schedule.day_of_week] = {
+                    "subject_name": schedule.subject.subject_name,
+                    "section_name": (
+                        f"{schedule.section.course.course_name} "
+                        f"- Year {schedule.section.year} "
+                        f"- {schedule.section.name}"
+                    ),
+                    "room": schedule.room,
+                }
+
+                break
 
     for row in slot_rows:
-        row["ordered_cells"] = [row["cells"][day] for day in day_columns]
+        row["ordered_cells"] = [
+            row["cells"][day]
+            for day in day_columns
+        ]
 
     context.update(
         {
@@ -657,4 +676,9 @@ def faculty_timetable_view(request):
             "slot_rows": slot_rows,
         }
     )
-    return render(request, "core/faculty_timetable.html", context)
+
+    return render(
+        request,
+        "core/faculty_timetable.html",
+        context,
+    )

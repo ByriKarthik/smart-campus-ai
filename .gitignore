@@ -1,6 +1,58 @@
-venv/
+# Python
 __pycache__/
-*.pyc
-db.sqlite3
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual Environment
+venv/
+env/
+ENV/
+
+# Environment Variables
 .env
-media/
+
+# Django
+db.sqlite3
+*.sqlite3
+
+# Media Files
+campus_ai/media/
+
+# Static Files
+staticfiles/
+
+# Logs
+*.log
+
+# VS Code
+.vscode/
+
+# PyCharm
+.idea/
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Docker
+*.pid
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.backup
+
+# Kubernetes
+*.kubeconfig
+
+# Jenkins
+jenkins_home/
+
+# Redis
+dump.rdb

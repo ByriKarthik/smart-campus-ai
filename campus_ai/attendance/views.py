@@ -2,20 +2,131 @@ import base64
 import os
 import uuid
 from datetime import date
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
 
+from rest_framework.response import Response
 from django.conf import settings
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.http import JsonResponse
 from django.utils import timezone
 
+from accounts.models import StudentProfile
+from attendance.models import AttendanceRecord
+from .serializers import StudentAttendanceSerializer
 from accounts.models import User
 from academics.models import ClassSchedule, Subject, Enrollment, Section
 from .models import AttendanceSession, AttendanceRecord
 from ml.utils import get_present_students
 from notifications.utils import send_absent_email
 
+@api_view(['GET'])
+@permission_classes([AllowAny])
 
+def student_attendance_api(
+    request,
+    student_id
+):
+
+    try:
+
+        student = StudentProfile.objects.get(
+            user_id=student_id
+        )
+
+    except StudentProfile.DoesNotExist:
+
+        return Response(
+            {
+                "error": "Student not found"
+            },
+            status=404
+        )
+
+    records = AttendanceRecord.objects.filter(
+        student_id=student_id
+    ).select_related(
+        'session__subject'
+    )
+
+    subject_map = {}
+
+    total_present = 0
+    total_classes = 0
+
+    for record in records:
+
+        subject_name = (
+            record.session.subject.subject_name
+        )
+
+        if subject_name not in subject_map:
+
+            subject_map[subject_name] = {
+                "subject": subject_name,
+                "present_classes": 0,
+                "absent_classes": 0,
+            }
+
+        if record.status == "PRESENT":
+
+            subject_map[subject_name][
+                "present_classes"
+            ] += 1
+
+            total_present += 1
+
+        else:
+
+            subject_map[subject_name][
+                "absent_classes"
+            ] += 1
+
+        total_classes += 1
+
+    subjects = []
+
+    for subject_data in subject_map.values():
+
+        total = (
+            subject_data["present_classes"]
+            +
+            subject_data["absent_classes"]
+        )
+
+        percentage = (
+            (
+                subject_data["present_classes"]
+                / total
+            ) * 100
+        ) if total else 0
+
+        subject_data[
+            "attendance_percentage"
+        ] = round(percentage, 2)
+
+        subjects.append(subject_data)
+
+    overall = (
+        (total_present / total_classes) * 100
+    ) if total_classes else 0
+
+    response_data = {
+        "student_id": student.user.user_id,
+        "student_name": student.name,
+        "overall_attendance": round(
+            overall,
+            2
+        ),
+        "subjects": subjects,
+    }
+
+    serializer = StudentAttendanceSerializer(
+        response_data
+    )
+
+    return Response(serializer.data)
 # =========================================================
 # MAIN FACULTY ATTENDANCE VIEW
 # =========================================================
@@ -163,6 +274,13 @@ def mark_attendance(request):
         if class_photo_path:
             auto_present_students = get_present_students(class_photo_path)
             # format: {'STU001': 0.91}
+            enrolled_ids = {enrollment.student.user_id for enrollment in enrollments}
+            # Only mark students who belong to selected subject + section enrollment.
+            auto_present_students = {
+                student_id: confidence
+                for student_id, confidence in auto_present_students.items()
+                if student_id in enrolled_ids
+            }
 
         # ----------------------------
         # 3️⃣ Duplicate Session Protection

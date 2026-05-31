@@ -8,7 +8,12 @@ def send_absent_email(student, subject, session):
     """
 
     student_profile = student.studentprofile
-    parent_email = student_profile.parent_contact  # using as email
+    parent_email = (student_profile.parent_email or "").strip()
+    if not parent_email:
+        legacy_contact = (student_profile.parent_contact or "").strip()
+        # Backward compatibility for existing records where email may have been stored in parent_contact.
+        if "@" in legacy_contact:
+            parent_email = legacy_contact
 
     if not parent_email:
         return

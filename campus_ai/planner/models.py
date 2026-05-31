@@ -26,7 +26,7 @@ class RemedialSession(models.Model):
 
 class RemedialAttendance(models.Model):
     session = models.ForeignKey(
-        RemedialSession,
+        "planner.RemedialSession",
         on_delete=models.CASCADE,
         related_name="attendances",
     )

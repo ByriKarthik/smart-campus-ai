@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: smartcampus-web
+
+spec:
+  replicas: 2
+
+  selector:
+    matchLabels:
+      app: smartcampus-web
+
+  template:
+    metadata:
+      labels:
+        app: smartcampus-web
+
+    spec:
+      containers:
+      - name: web
+        image: campus_project-web:latest
+        imagePullPolicy: Never
+
+        workingDir: /app/campus_ai/campus_ai
+
+        command:
+          - gunicorn
+
+        args:
+          - --bind
+          - 0.0.0.0:8000
+          - campus_ai.wsgi:application
+
+        ports:
+          - containerPort: 8000
+
+        env:
+          - name: DEBUG
+            value: "True"
+
+          - name: EMAIL_PORT
+            value: "587"
+
+          - name: EMAIL_HOST
+            value: "smtp.gmail.com"
+
+          - name: EMAIL_HOST_USER
+            value: "test@example.com"
+
+          - name: EMAIL_HOST_PASSWORD
+            value: "dummy_password"
+
+          - name: EMAIL_USE_TLS
+            value: "True"
+
+---
+apiVersion: v1
+kind: Service
+
+metadata:
+  name: smartcampus-web-service
+
+spec:
+  selector:
+    app: smartcampus-web
+
+  ports:
+    - protocol: TCP
+      port: 8000
+      targetPort: 8000
+
+  type: NodePort
