@@ -17,12 +17,15 @@ spec:
         app: celery
 
     spec:
+      imagePullSecrets:
+      - name: dockerhub-secret
+
       containers:
       - name: celery
 
-        image: campus_project-web:latest
+        image: karthikbyri/smart-campus-ai:latest
 
-        imagePullPolicy: Never
+        imagePullPolicy: Always
 
         workingDir: /app/campus_ai/campus_ai
 

@@ -17,10 +17,13 @@ spec:
         app: smartcampus-web
 
     spec:
+      imagePullSecrets:
+      - name: dockerhub-secret
+      
       containers:
       - name: web
-        image: campus_project-web:latest
-        imagePullPolicy: Never
+        image: karthikbyri/smart-campus-ai:latest
+        imagePullPolicy: Always
 
         workingDir: /app/campus_ai/campus_ai
 
